@@ -5,26 +5,20 @@ require "nested_exceptions/define"
 module NestedExceptions
   attr_reader :cause
 
-  def initialize(message = nil, cause = $!)
+  def initialize(message = nil, cause = nil)
+    @cause = cause || $!
     super(message)
-    @cause = cause
   end
 
-  def backtrace
-    return @processed_backtrace if defined? @processed_backtrace
-    @processed_backtrace = super
-    if cause
-      cause.backtrace.reverse.each do |line|
-        if @processed_backtrace.last == line
-          @processed_backtrace.pop
-        else
-          break
-        end
-      end
-      @processed_backtrace << "cause: #{cause.class.name}: #{cause}"
-      @processed_backtrace.concat cause.backtrace
+  if RUBY_ENGINE == 'jruby'
+    def backtrace
+      return @processed_backtrace if defined? @processed_backtrace and @processed_backtrace
+      @processed_backtrace = process_backtrace(super)
     end
-    @processed_backtrace
+  else
+    def set_backtrace(bt)
+      super process_backtrace(bt)
+    end
   end
 
   def root_cause
@@ -35,5 +29,22 @@ module NestedExceptions
       e = e.cause
     end
     rc
+  end
+
+  protected
+
+  def process_backtrace(bt)
+    if cause
+      cause.backtrace.reverse.each do |line|
+        if bt.last == line
+          bt.pop
+        else
+          break
+        end
+      end
+      bt << "--- cause: #{cause.class.name}: #{cause}"
+      bt.concat cause.backtrace
+    end
+    bt
   end
 end

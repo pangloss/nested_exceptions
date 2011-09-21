@@ -33,10 +33,17 @@ end
 
 describe NestedExceptions do
   let(:ex) { ErrorSpec::Example.new }
+  let(:in_rescue) do
+    if RUBY_ENGINE == 'jruby'
+      in_rescue = ''
+    else
+      in_rescue = 'rescue in '
+    end
+  end
 
   it 'should create a stack trace correctly' do
     stack = raise rescue $!.backtrace
-    stack.first.should == "#{__FILE__}:#{__LINE__ - 1}:in `(root)'"
+    stack.first.should =~ /#{__FILE__}:#{__LINE__ - 1}:in `(\(root\)|block \(2 levels\) in <top \(required\)>)'/
   end
 
   describe 'normal StandardError' do
@@ -55,8 +62,8 @@ describe NestedExceptions do
     its('root_cause.message') { should == 'bug' }
     its(:backtrace) do
       should == [
-        "#{__FILE__}:19:in `problem'",
-        "cause: RuntimeError: bug", 
+        "#{__FILE__}:19:in `#{in_rescue}problem'",
+        "--- cause: RuntimeError: bug",
         "#{__FILE__}:9:in `bug'",
         "#{__FILE__}:13:in `nested_bug'",
         "#{__FILE__}:17:in `problem'"
@@ -72,10 +79,10 @@ describe NestedExceptions do
     its('root_cause.message') { should == 'bug' }
     its(:backtrace) do
       should == [
-        "#{__FILE__}:29:in `double_bug'",
-        "cause: ErrorSpec::InternalError: problem",
-        "#{__FILE__}:19:in `problem'",
-        "cause: RuntimeError: bug", 
+        "#{__FILE__}:29:in `#{in_rescue}double_bug'",
+        "--- cause: ErrorSpec::InternalError: problem",
+        "#{__FILE__}:19:in `#{in_rescue}problem'",
+        "--- cause: RuntimeError: bug",
         "#{__FILE__}:9:in `bug'",
         "#{__FILE__}:13:in `nested_bug'",
         "#{__FILE__}:17:in `problem'",
