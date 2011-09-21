@@ -33,9 +33,11 @@ end
 
 describe NestedExceptions do
   let(:ex) { ErrorSpec::Example.new }
-  let(:in_rescue) do
-    if RUBY_ENGINE == 'jruby'
-      in_rescue = ''
+  def in_rescue
+    if Object.const_defined? :RUBY_ENGINE and RUBY_ENGINE == 'jruby'
+      ''
+    elsif RUBY_VERSION =~ /^1\.[0-8]\./
+      ''
     else
       in_rescue = 'rescue in '
     end
@@ -43,7 +45,7 @@ describe NestedExceptions do
 
   it 'should create a stack trace correctly' do
     stack = raise rescue $!.backtrace
-    stack.first.should =~ /#{__FILE__}:#{__LINE__ - 1}:in `(\(root\)|block \(2 levels\) in <top \(required\)>)'/
+    stack.first.should =~ /#{__FILE__}:#{__LINE__ - 1}/
   end
 
   describe 'normal StandardError' do
@@ -87,7 +89,7 @@ describe NestedExceptions do
         "#{__FILE__}:13:in `nested_bug'",
         "#{__FILE__}:17:in `problem'",
         "#{__FILE__}:23:in `nested_problem'",
-        "#{__FILE__}:27:in `double_bug'",
+        "#{__FILE__}:27:in `double_bug'"
       ] + @stack
     end
   end

@@ -10,7 +10,7 @@ module NestedExceptions
     super(message)
   end
 
-  if RUBY_ENGINE == 'jruby'
+  if Object.const_defined? :RUBY_ENGINE and RUBY_ENGINE == 'jruby'
     def backtrace
       return @processed_backtrace if defined? @processed_backtrace and @processed_backtrace
       @processed_backtrace = process_backtrace(super)
