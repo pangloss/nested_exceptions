@@ -44,12 +44,15 @@ if ARGV.first == 'original'
 elsif ARGV.first == 'nested'
 
   require 'nested_exceptions/global'
-  puts "Nested exception:"
   begin
     example.double_bug
   rescue StandardError => e
-    puts "Note that JRuby does not display the modified backtrace:"
-    pp e.backtrace
+    if Object.const_defined? :RUBY_ENGINE and (RUBY_ENGINE == 'jruby' or RUBY_ENGINE == 'rbx')
+      puts "Note that JRuby and Rubinius do not display the modified backtrace:"
+      pp e.backtrace
+      puts
+    end
+    puts "Nested exception:"
     raise
   end
 
