@@ -17,7 +17,7 @@ source of information at the [Exceptional Ruby](http://exceptionalruby.com/) sit
 The best way to use it is to simply add the following line of code to
 your project:
 
-  require 'nested_exceptions/global'
+    require 'nested_exceptions/global'
 
 That includes the NestedExceptions module in all of Ruby's base
 exception classes (except the Exception root class), magically enabling
@@ -28,11 +28,11 @@ you to debug the trickiest, buggiest libraries.
 If you want to try it out without extending Ruby's exception classes,
 you can also do the following:
 
-  require 'nested_exceptions'
+    require 'nested_exceptions'
 
-  class MyException < StandardError
-    include NestedExceptions
-  end
+    class MyException < StandardError
+      include NestedExceptions
+    end
 
 That will only extend your class and leave the rest of the exception
 classes untouched.
@@ -43,14 +43,14 @@ Yes. A bit of extra information is added to your backtraces. In addition
 to the standard backtrace, you'll get a little bit of nesting
 information.
 
-  ruby examples/example.rb original
+  `ruby examples/example.rb original`
 
     examples/example.rb:32:in `rescue in double_bug': oops (RuntimeError)
       from examples/example.rb:30:in `double_bug'
       from examples/example.rb:42:in `<main>'
 
 
-  ruby examples/example.rb nested
+  `ruby examples/example.rb nested`
 
     examples/example.rb:30:in `rescue in double_bug': oops (RuntimeError)
       from --- cause: ErrorSpec::InternalError: problem
