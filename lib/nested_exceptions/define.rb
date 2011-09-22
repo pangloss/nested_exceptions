@@ -5,9 +5,9 @@ module NestedExceptions
     #
     # I actually recommend that you just define these manually, but this may be
     # a handy shortcut in smaller projects.
-    def define_standard_exception_classes_in(target_module)
+    def define_standard_exception_classes_in(target_module, add_module = false)
       definitions = %{
-        class Error < StandardError; include NestedExceptions; end
+        class Error < StandardError; #{ add_module ? 'include NestedExceptions;' : '' } end
           class UserError < Error; end
           class LogicError < Error; end
             class ClientError < LogicError; end
